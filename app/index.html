@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>打卡</title>
+    <meta name="msapplication-tap-highlight" content="no">
+    <link rel="manifest" href="manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content=" ">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content=" ">
+    <meta name="msapplication-TileColor" content="#2F3BA2">
+    <meta name="theme-color" content="#2F3BA2">
+    <link href="stylesMP_verify_tIY6Q83cTJGFluGC.txt">
+    <link rel="stylesheet" href="styles/weui.css">
+    <link rel="stylesheet" href="styles/index.css">
+  </head>
+  <body class="body">
+      <!-- 用户信息 -->
+      <div class="user-box">
+        <div class="user">
+          <div class="user-avatar">
+            <img src="http://img3.imgtn.bdimg.com/it/u=720891101,4253860064&fm=27&gp=0.jpg" alt="用户头像">
+          </div>
+          <div class="user-nick-name">
+            <p>Gatsby</p>
+          </div>
+        </div>
+        <div class="kcal-type">
+          <p class="app-name">宝贝的萌宠日记</p>
+          <p class="app-total-day">累计成长2天</p></div>
+      </div>
+
+      <!-- 日历 -->
+      <div class="calendar-box">
+        <div class="calendar">
+          <div class="calendar-header">
+            <span class="prev">&lt;</span>
+            <span class="date-Info">2017年12月</span>
+            <span class="next">&gt;</span>
+          </div>
+          <div class="calendar-body">
+            <table class="calendar-main">
+              <thead>
+                <tr><th>日</th><th>一</th><th>二</th><th>三</th><th>四</th><th>五</th><th>六</th></tr>
+              </thead>
+              <tbody class="calendar-tbody">
+                <!-- <tr role="calendar-row">
+                  <td class="calendar-td " title="12/undefined/2017"><div class="calendar-date"></div></td>
+                  <td class="calendar-td " title="12/undefined/2017"><div class="calendar-date"></div></td>
+                  <td class="calendar-td " title="12/undefined/2017"><div class="calendar-date"></div></td>
+                  <td class="calendar-td " title="12/undefined/2017"><div class="calendar-date"></div></td>
+                  <td class="calendar-td " title="12/undefined/2017"><div class="calendar-date"></div></td>
+                  <td class="calendar-td " title="12/1/2017"><div class="calendar-date">1</div></td>
+                  <td class="calendar-td " title="12/2/2017"><div class="calendar-date">2</div></td>
+                </tr> -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 打卡按钮 -->
+      <div class="go-kcal">
+        <div class="kcal-btn" id="goKcal">打卡</div>
+      </div>
+
+      <!-- 打卡 开始 结束 -->
+      <div id="kcaling" style="display: none">
+        <p class="now-day">萌宠日记 2017-12-10</p>
+        <p class="kcaling-title">宝贝开始说英语吧！</p>
+        <div id="startRecord" class="kcaling-btn ">
+          o<div class="kcaling-time">0 ''</div>
+        </div>
+        <p class="kcaling-prompt">按住录音</p>
+      </div>
+
+      <!-- 打卡完成 -->
+      <div id="kcaled" style="display: none;">
+        <p class="now-day">萌宠日记 2017-12-10</p>
+        <div id="playVoice" class="record">0''  点击听宝贝说得有多棒！</div>
+        <div class="record-control">
+          <div id="recordAgain" class="record-again">
+            <div class="record-again-btn"></div>
+            <p>重录</p>
+          </div>
+          <div id="recordOk" class="record-ok">
+            <div class="record-ok-btn"></div>
+              <p>完成</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 遮罩层 -->
+      <div id="Mask" style="display: none"></div>
+  </body>
+<script src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
+<script src="scripts/zepto.min.js"></script>
+<script>
+  var bowerPath = window.location.href;
+  
+  $.post(`https://open.api.qooco.com/weixin-pet-diary/wxauth/access-keys?url=${bowerPath}`, function(res){ 
+    wx.config({
+      debug: true, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+      appId: 'wxda54d6ae9ec24420', // 必填，公众号的唯一标识
+      timestamp: res.data.timestamp, // 必填，生成签名的时间戳
+      nonceStr: res.data.nonceStr, // 必填，生成签名的随机串
+      signature: res.data.signature,// 必填，签名，见附录1
+      jsApiList: [,
+        'checkJsApi',
+        'onMenuShareTimeline',
+        'onMenuShareAppMessage',
+        'onMenuShareQQ',
+        'onMenuShareWeibo',
+        'onMenuShareQZone',
+        'hideMenuItems',
+        'showMenuItems',
+        'hideAllNonBaseMenuItem',
+        'showAllNonBaseMenuItem',
+        'translateVoice',
+        'startRecord',
+        'stopRecord',
+        'onVoiceRecordEnd',
+        'playVoice',
+        'onVoicePlayEnd',
+        'pauseVoice',
+        'stopVoice',
+        'uploadVoice',
+        'downloadVoice',
+        'chooseImage',
+        'previewImage',
+        'uploadImage',
+        'downloadImage',
+        'getNetworkType',
+        'openLocation',
+        'getLocation',
+        'hideOptionMenu',
+        'showOptionMenu',
+        'closeWindow',
+        'scanQRCode',
+        'chooseWXPay',
+        'openProductSpecificView',
+        'addCard',
+        'chooseCard',
+        'openCard'
+      ]
+    });
+
+    wx.ready(function(){
+      // 3 智能接口
+      let voice = {
+        localId: '',
+        serverId: ''
+      };
+
+      // 4 音频接口
+      // 4.2 开始录音
+      let startRecord = document.querySelector("#startRecord");
+      startRecord.addEventListener("touchstart", function(){
+        wx.startRecord({
+          cancel: function () {
+            alert('用户拒绝授权录音');
+          }
+        });
+      })
+
+      // 4.3 停止录音
+      startRecord.addEventListener("touchend", function(){
+        console.log(0)
+        wx.stopRecord({
+          success: function (res) {
+            voice.localId = res.localId;
+          },
+          fail: function (res) {
+            alert(JSON.stringify(res));
+          }
+        });
+      })
+
+      // 4.5 播放音频
+      document.querySelector('#playVoice').onclick = function () {
+        if (voice.localId == '') {
+          alert('请先使用 startRecord 接口录制一段声音');
+          return;
+        }
+        wx.playVoice({
+          localId: voice.localId
+        });
+      };
+    }) 
+
+    // 4.8 上传语音
+    document.querySelector('#recordOk').onclick = function () {
+      if (voice.localId == '') {
+        alert('请先使用 startRecord 接口录制一段声音');
+        return;
+      }
+      wx.uploadVoice({
+        localId: voice.localId,
+        success: function (res) {
+          alert('上传语音成功，serverId 为' + res.serverId);
+          voice.serverId = res.serverId;
+        }
+      });
+    };
+
+
+    wx.error(function(){
+      console.log('error')
+    });
+  })
+
+  // axios.get(`https://open.api.qooco.com/weixin-pet-diary/wxauth/webpage-access-token?code=${wx_code}`)
+  // 	.then(function (res) {
+  // 		if (res.data.status == '200') {
+  // 			let userinfo = res.data.data.userinfo
+  // 			console.log(res.data.data.userinfo);
+  // 			that.setState({
+  // 				userinfo: userinfo
+  // 			})
+  // 			console.log(that.state);
+  // 		}
+  // 	})
+  // 	.catch(function (error) {
+  // 		console.log(error);
+  // 	});
+</script>
+<script>
+  var totleBox = 42;
+
+  // 月份一共多少天计算 Number
+  function getCountDays(type, year, month) {
+    var curDate;
+    switch (type) {
+      case 'PREV':
+        if (month == 1) {
+          year = year - 1
+          month = 12
+        } else {
+          month = month - 1
+        }
+        curDate = new Date(`${year}, ${month}, 01`)
+        break
+      case 'NOW':
+        curDate = new Date(`${year}, ${month}, 01`)
+        break
+      case 'NEXT':
+        if (month == 12) {
+          year = year + 1
+          month = 1
+        } else {
+          month = month + 1
+        }
+        curDate = new Date(`${year}, ${month}, 01`)
+        break
+    }
+    var curMonth = curDate.getMonth();
+    curDate.setMonth(curMonth + 1);
+    curDate.setDate(0);
+    return curDate.getDate()
+  }
+  // let totleNowDay = this.getCountDays('NOW')
+  // let totlePrevDay = this.getCountDays('PREV')
+  // let totleNextDay = this.getCountDays('NEXT')
+
+  // 创建
+  function calendar_Engine(totleDay, year, month, day ) { 
+    function isLeap(year) {
+      return year % 4 == 0 ? (year % 100 != 0 ? 1 : (year % 400 == 0 ? 1 : 0)) : 0;
+    }
+    var index, item,
+      today = new Date(), // 获取当前日期
+      //y = today.getFullYear(), // 获取日期中的年份
+      //m = today.getMonth(), // 获取日期中的月份(需要注意的是：月份是从0开始计算，获取的值比正常月份的值少1)
+      //d = today.getDate(), // 获取日期中的日(方便在建立日期表格时高亮显示当天)
+      firstday = new Date(year, month, 1), //获取当月的第一天
+      dayOfWeek = firstday.getDay(), //判断第一天是星期几(返回[0-6]中的一个，0代表星期天，1代表星期一，以此类推)
+      days_per_month = new Array(31, 28 + isLeap(year), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31), //创建月份数组
+      str_nums = Math.ceil((dayOfWeek + days_per_month[month]) / 7); // 确定日期表格所需的行数
+
+    var DOM_ELEMENT = '';
+    for (index = 0; index < str_nums; index += 1) { // 二维数组创建日期表格
+      DOM_ELEMENT += '<tr key=' + index + '>';
+      for (item = 0; item < 7; item++) {
+        var idx = 7 * index + item; // 为每个表格创建索引,从0开始
+        var date = idx - dayOfWeek + 1; // 将当月的1号与星期进行匹配
+        (date <= 0 || date > days_per_month[month]) ? date = '&nbsp;': date = idx - dayOfWeek + 1; // 索引小于等于0或者大于月份最大值就用空表格代替
+        date == day ? DOM_ELEMENT += '<td class="calendar-today-date"><div class="calendar-date">' + date + '</div></td>' : DOM_ELEMENT += '<td><div class="calendar-date">' + date + '</div></td>'; //高亮显示当天
+      }
+      DOM_ELEMENT += '</tr>';
+    }
+    console.log(year)
+    console.log(month)
+    $('.calendar-tbody').html(DOM_ELEMENT)
+  }
+
+  // 本月一共多少天 Number
+  var year = new Date().getFullYear();
+  var month = new Date().getMonth();
+  var day = new Date().getDate();
+  var totleDay = this.getCountDays('NOW', year, month)
+  this.calendar_Engine(totleDay, year, month, day)
+
+  // 上月
+  var that = this;
+  $('.prev').on('click', function() {
+    if (month == 1) {
+        year = year - 1
+        month = 11
+    } else {
+        month =  month - 1
+    }
+    var totleDay = that.getCountDays('PREV', year, month)
+    var totlePrevDay = that.calendar_Engine(totleDay, year, month, day)
+    months = parseInt(month + 1) 
+    $('.date-Info').text(year + '年' + months + '月')
+    
+  })
+  // 下月
+  $('.next').on('click', function() {
+    if (month == 11) {
+      year = year + 1
+      month = 0
+    } else {
+      month = month + 1
+    }
+    var totleDay = that.getCountDays('NEXT', year, month)
+    var totlePrevDay = that.calendar_Engine(totleDay, year, month, day)
+
+    months = parseInt(month + 1) 
+    $('.date-Info').text(year + '年' + months + '月')
+    
+  })
+
+  // 遮罩层开关
+  $('#Mask').on('click', function(){
+    $('#Mask').hide()
+    $('#kcaling').hide()
+  })
+
+  // 去打卡
+  $('#goKcal').on('click', function(){
+    $('#Mask').show()
+    $('#kcaling').show()
+  })
+
+  // 打卡 开始
+  var record_time = 0;
+  var startRecord = document.querySelector("#startRecord");
+  startRecord.addEventListener("touchstart", function(){
+    record_time = 0;
+    $('.kcaling-time').text(record_time + " ''")
+    $('.kcaling-time').show()
+    that.timer = setInterval(() => {
+      record_time = record_time + 1
+      $('.kcaling-time').text(record_time + " ''")
+    }, 1000);
+  })
+
+  // 打卡 结束 完成
+  startRecord.addEventListener("touchend", function(){
+    $('.kcaling-time').hide()
+    clearInterval(that.timer)
+    // record_time = 0;
+
+    $('#kcaling').hide()
+
+    $('#playVoice').text( record_time + " '' 点击听宝贝说得有多棒！")
+    $('#kcaled').show()
+
+  })
+
+  // 重录  
+  $('#recordAgain').on('click', function(){
+    record_time = 0;
+    $('#kcaled').hide()
+    $('#kcaling').show()
+  })
+
+  // 重录 存储
+  $('#recordOk').on('click', function(){
+    
+  })
+
+
+</script>
+</html>
